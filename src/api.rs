@@ -1,15 +1,17 @@
+use leptos::Resource;
 use serde::{Deserialize, Serialize};
 
+#[allow(unused)] // unused in server-side binary
 const URL: &str = "https://catsof.asia/images";
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Image {
     pub id: usize,
-    #[serde(rename= "urlLarge")]
+    #[serde(rename="urlLarge")]
     pub url_large: String,
-    #[serde(rename = "urlMedium")]
+    #[serde(rename="urlMedium")]
     pub url_medium: String,
-    #[serde(rename = "urlSmall")]
+    #[serde(rename="urlSmall")]
     pub url_small: String,
     pub sha256: String,
     pub timestamp: String,
@@ -19,24 +21,12 @@ pub struct Image {
     pub country: String,
 }
 
+#[derive(Copy, Clone)]
+pub struct ImagesResource(pub Resource<(), Vec<Image>>);
+
 #[cfg(feature = "ssr")]
 pub async fn fetch_images() -> Vec<Image> {
-    let empty = vec![];
-    
-    let response = reqwest::get(URL).await;
-    if response.is_err() {
-        log::error!("error fetching images on the server: {:?}", response.err());
-        return empty;
-    }
-    
-    let images = response.unwrap().json::<Vec<Image>>().await;
-    match images {
-        Ok(images) => images,
-        Err(e) => {
-            log::error!("error parsing api response on the server: {:?}", e);
-            empty
-        }
-    }
+    vec![]
 }
 
 #[cfg(not(feature = "ssr"))]
